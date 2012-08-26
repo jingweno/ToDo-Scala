@@ -1,10 +1,12 @@
-import org.squeryl.adapters.{ H2Adapter, PostgreSqlAdapter }
+import org.squeryl.Session
+import org.squeryl.SessionFactory
+import org.squeryl.adapters.H2Adapter
+import org.squeryl.adapters.PostgreSqlAdapter
 import org.squeryl.internals.DatabaseAdapter
-import org.squeryl.{ Session, SessionFactory }
-import play.api.db.DB
-import play.api.GlobalSettings
 
 import play.api.Application
+import play.api.GlobalSettings
+import play.api.db.DB
 
 object Global extends GlobalSettings {
 
