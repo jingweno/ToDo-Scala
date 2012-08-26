@@ -13,4 +13,4 @@ CREATE TABLE tasks (
  
 DROP TABLE task;
 
-DROP SEQUENCE task_id_seq;
+DROP SEQUENCE s_tasks_id;

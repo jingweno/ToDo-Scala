@@ -1,14 +1,14 @@
-import controllers.routes
-import models.{ AppDB, Task }
-
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
 
-import org.squeryl.PrimitiveTypeMode.inTransaction
-
-import play.api.http.ContentTypes.JSON
-import play.api.test._
-import play.api.test.Helpers._
+import controllers.routes
+import play.api.test.FakeApplication
+import play.api.test.FakeRequest
+import play.api.test.Helpers.SEE_OTHER
+import play.api.test.Helpers.inMemoryDatabase
+import play.api.test.Helpers.redirectLocation
+import play.api.test.Helpers.running
+import play.api.test.Helpers.status
 
 class ApplicationSpec extends FlatSpec with ShouldMatchers {
 
