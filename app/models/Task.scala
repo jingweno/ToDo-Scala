@@ -1,36 +1,35 @@
 package models
 
-import anorm._
-import anorm.SqlParser._
-import play.api.db._
-import play.api.Play.current
+import org.squeryl.KeyedEntity
+import org.squeryl.PrimitiveTypeMode.__thisDsl
+import org.squeryl.PrimitiveTypeMode.from
+import org.squeryl.PrimitiveTypeMode.inTransaction
+import org.squeryl.PrimitiveTypeMode.long2ScalarLong
+import org.squeryl.PrimitiveTypeMode.select
+import org.squeryl.Schema
+import scala.collection.immutable.List
 
-case class Task(id: Long, label: String)
+case class Task(label: String) extends KeyedEntity[Long] {
+  val id: Long = 0
+}
+
+object AppDB extends Schema {
+  var taskTable = table[Task]("task")
+}
 
 object Task {
 
-  def all(): List[Task] = DB.withConnection { implicit c =>
-    SQL("select * from task").as(task *)
+  def all(): List[Task] = inTransaction {
+    from(AppDB.taskTable)(taskTable =>
+    select(taskTable)).toList
   }
 
-  def create(label: String) {
-    DB.withTransaction { implicit c =>
-      SQL("insert into task (label) values ({label})").on(
-        'label -> label).executeUpdate
-    }
+  def create(label: String) = inTransaction {
+    AppDB.taskTable.insert(Task(label))
   }
 
-  def delete(id: Long) {
-    DB.withConnection { implicit c =>
-      SQL("delete from task where id = {id}").on(
-        'id -> id).executeUpdate()
-    }
-  }
-
-  val task = {
-    get[Long]("id") ~
-      get[String]("label") map {
-        case id ~ label => Task(id, label)
-      }
+  def delete(id: Long) = inTransaction {
+    AppDB.taskTable.deleteWhere(task =>
+      task.id === id)
   }
 }

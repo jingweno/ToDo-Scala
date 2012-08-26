@@ -5,6 +5,7 @@
 # Home page
 GET     /                           controllers.Application.index
 GET     /tasks                      controllers.Application.tasks
+GET     /api/tasks                  controllers.Application.apiTasks
 POST    /tasks                      controllers.Application.newTask
 POST    /tasks/:id/delete           controllers.Application.deleteTask(id: Long)
 

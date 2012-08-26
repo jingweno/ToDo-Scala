@@ -1,10 +1,17 @@
 package controllers
 
-import play.api._
-import play.api.mvc._
-import play.api.data._
-import play.api.data.Forms._
+import org.squeryl.PrimitiveTypeMode._
+
+import com.codahale.jerkson.Json
+
 import models.Task
+import models.AppDB
+import play.api._
+import play.api.data._
+import play.api.data.Forms.mapping
+import play.api.data.Forms.nonEmptyText
+import play.api.data.Forms.optional
+import play.api.mvc._
 
 object Application extends Controller {
 
@@ -16,13 +23,17 @@ object Application extends Controller {
     Ok(views.html.index(Task.all, taskForm))
   }
 
+  def apiTasks = Action {
+    val json = Json.generate(Task.all)
+
+    Ok(json).as(JSON)
+  }
+
   def newTask = Action { implicit request =>
-    taskForm.bindFromRequest.fold(
-      errors => BadRequest(views.html.index(Task.all, errors)),
-      label => {
-        Task.create(label)
-        Redirect(routes.Application.tasks)
-      })
+    taskForm.bindFromRequest.value map { task =>
+      inTransaction(AppDB.taskTable insert task)
+      Redirect(routes.Application.tasks)
+    } getOrElse BadRequest
   }
 
   def deleteTask(id: Long) = Action {
@@ -31,5 +42,6 @@ object Application extends Controller {
   }
 
   private val taskForm = Form(
-    "label" -> nonEmptyText)
+    mapping(
+      "label" -> nonEmptyText)(Task.apply)(Task.unapply))
 }
