@@ -2,13 +2,15 @@
  
 # --- !Ups
 
-CREATE SEQUENCE task_id_seq;
-CREATE TABLE task (
-    id integer NOT NULL DEFAULT nextval('task_id_seq'),
+CREATE SEQUENCE s_tasks_id;
+
+CREATE TABLE tasks (
+    id bigint NOT NULL DEFAULT nextval('s_tasks_id'),
     label varchar(255)
 );
  
 # --- !Downs
  
 DROP TABLE task;
+
 DROP SEQUENCE task_id_seq;

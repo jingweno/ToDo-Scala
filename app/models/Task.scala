@@ -14,18 +14,18 @@ case class Task(label: String) extends KeyedEntity[Long] {
 }
 
 object AppDB extends Schema {
-  var taskTable = table[Task]("task")
+  var taskTable = table[Task]("tasks")
 }
 
 object Task {
 
   def all(): List[Task] = inTransaction {
     from(AppDB.taskTable)(taskTable =>
-    select(taskTable)).toList
+      select(taskTable)).toList
   }
 
-  def create(label: String) = inTransaction {
-    AppDB.taskTable.insert(Task(label))
+  def create(task: Task) = inTransaction {
+    AppDB.taskTable.insert(task)
   }
 
   def delete(id: Long) = inTransaction {

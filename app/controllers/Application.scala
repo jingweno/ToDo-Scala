@@ -31,7 +31,7 @@ object Application extends Controller {
 
   def newTask = Action { implicit request =>
     taskForm.bindFromRequest.value map { task =>
-      inTransaction(AppDB.taskTable insert task)
+      Task.create(task)
       Redirect(routes.Application.tasks)
     } getOrElse BadRequest
   }
