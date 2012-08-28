@@ -5,6 +5,7 @@ import org.squeryl.PrimitiveTypeMode.inTransaction
 import controllers.routes
 import models.Database
 import models.Task
+import play.api.mvc.AsyncResult
 import play.api.test.FakeApplication
 import play.api.test.FakeRequest
 import play.api.test.Helpers.OK
@@ -19,7 +20,8 @@ class ApplicationSpec extends FlatSpec with ShouldMatchers {
 
   "A request to the newTask action" should "respond" in {
     running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
-      val result = controllers.Application.newTask(FakeRequest().withFormUrlEncodedBody("label" -> "FooBar"))
+      val asyncResult = controllers.Application.newTask(FakeRequest().withFormUrlEncodedBody("label" -> "FooBar")).asInstanceOf[AsyncResult]
+      val result = asyncResult.result.await.get
       status(result) should equal(SEE_OTHER)
       redirectLocation(result) should equal(Some(routes.Application.tasks.url))
     }
@@ -29,7 +31,8 @@ class ApplicationSpec extends FlatSpec with ShouldMatchers {
     running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
       inTransaction(Database.taskTable insert Task("foo"))
 
-      val result = controllers.Application.apiTasks(FakeRequest())
+      val asyncResult = controllers.Application.apiTasks(FakeRequest()).asInstanceOf[AsyncResult]
+      val result = asyncResult.result.await.get
       status(result) should equal (OK)
       contentAsString(result) should include ("foo")
     }
