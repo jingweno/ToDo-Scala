@@ -11,6 +11,6 @@ CREATE TABLE tasks (
  
 # --- !Downs
  
-DROP TABLE task;
+DROP TABLE tasks;
 
 DROP SEQUENCE s_tasks_id;
