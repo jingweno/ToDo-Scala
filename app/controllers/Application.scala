@@ -8,6 +8,8 @@ import play.api.data.Forms.mapping
 import play.api.data.Forms.nonEmptyText
 import play.api.mvc.Action
 import play.api.mvc.Controller
+import play.api.Play.current
+import play.api.libs.concurrent.Akka
 
 object Application extends Controller {
   def index = Action {
@@ -15,25 +17,46 @@ object Application extends Controller {
   }
 
   def tasks = Action {
-    Ok(views.html.index(Task.all, taskForm))
+    val promiseOfTasks = Akka.future {
+      Task.all
+    }
+
+    Async {
+      promiseOfTasks.map(tasks => Ok(views.html.index(tasks, taskForm)))
+    }
   }
 
   def apiTasks = Action {
-    val json = Json.generate(Task.all)
+    val promiseOfJson = Akka.future {
+      Json.generate(Task.all)
+    }
 
-    Ok(json).as(JSON)
+    Async {
+      promiseOfJson.map(json => Ok(json).as(JSON))
+    }
   }
 
   def newTask = Action { implicit request =>
     taskForm.bindFromRequest.value map { task =>
-      Task.create(task)
-      Redirect(routes.Application.tasks)
+      val promiseOfTask = Akka.future {
+        Task.create(task)
+      }
+
+      Async {
+        promiseOfTask.map(task => Redirect(routes.Application.tasks))
+      }
+
     } getOrElse BadRequest
   }
 
   def deleteTask(id: Long) = Action {
-    Task.delete(id)
-    Redirect(routes.Application.tasks)
+    val promiseOfDeleteTask = Akka.future {
+      Task.delete(id)
+    }
+
+    Async {
+      promiseOfDeleteTask.map(taskId => Redirect(routes.Application.tasks))
+    }
   }
 
   private val taskForm = Form(
